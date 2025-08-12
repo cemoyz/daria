@@ -1,0 +1,85 @@
+version: "3.8"
+services:
+  db_daria:
+    image: postgres
+    container_name: db_daria
+    restart: always
+    ports:
+      - "${DB_PORT}:5432"
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+  pgadmin_daria:
+    image: dpage/pgadmin4
+    container_name: pgadmin_daria
+    restart: always
+    ports:
+      - "${PORT_PGADMIN}:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+  daria:
+    build: .
+    container_name: daria-id
+    restart: always
+    ports:
+      - "40008:3000"
+    environment:
+      - NODE_ENV=production
+  daria_admin:
+    build:
+      context: ${IMAGE_ADMIN}
+      target: ${ENVIRONMENT}
+      args:
+        PORT: ${PORT_ADMIN}
+        ENVIRONMENT: ${ENVIRONMENT}
+        API: ${API}
+        API_DIRECT_URL: ${HTTPS}
+        JWT_KEY: ${JWT_KEY}
+        SOCKET_API: ${SOCKET_API}
+    restart: always
+    container_name: daria_admin
+    environment:
+      - NEXT_PUBLIC_NODE_ENV=${ENVIRONMENT}
+    network_mode: host
+  backend_daria:
+    container_name: backend_daria
+    build:
+      context: ${IMAGE_BACKEND}
+    restart: always
+    ports:
+      - "${PORT_BACKEND}:8000"
+    environment:
+      S3_BUCKET_NAME: ${S3_BUCKET_NAME}
+      S3_ENDPOINT_URL: ${S3_ENDPOINT_URL}
+      S3_REGION: ${S3_REGION}
+      S3_ACCESS_KEY: ${S3_ACCESS_KEY}
+      S3_SECRET_KEY: ${S3_SECRET_KEY}
+      S3_LINK_FILE: ${S3_LINK_FILE}
+      DATABASE_URL: ${DATABASE_URL}
+      AUTH_SECRET_KEY: ${JWT_KEY}
+      BACKEND_API: ${BACKEND_API}
+      META_TOKEN_KEY: ${META_TOKEN_KEY}
+      SOCKET_API: ${SOCKET_API}
+  socket_daria:
+    build:
+      context: ${IMAGE_SOCKET}
+    container_name: socket_daria
+    restart: always
+    ports:
+      - ${PORT_SOCKET}:7000
+    environment:
+      PORT: 7000
+
+      
+volumes:
+  db-data:
+  pgadmin-data:
+
+networks:
+  public:
+    driver: bridge

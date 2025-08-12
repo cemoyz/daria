@@ -1,0 +1,43 @@
+@import "tailwindcss";
+
+body {
+  @apply text-xs sm:text-base;
+}
+
+@theme {
+  --color-merah: #e51721;
+  --color-primary: #1e2236;
+  --color-secondary: #23a9e2;
+
+  --animate-spin: spin-reverse 30s linear infinite;
+  --animate-rotate-border: border-rotate 3s linear infinite;
+}
+
+@property --border-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@keyframes spin-reverse {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+@keyframes border-rotate {
+  to {
+    --border-angle: -360deg;
+  }
+}
+
+.big_container {
+  @apply bg-primary min-h-screen flex w-full justify-center flex-col items-center;
+}
+
+.container {
+  @apply bg-primary sm:p-4 px-4 w-full sm:max-w-2xl space-y-24;
+}
