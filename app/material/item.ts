@@ -1,41 +1,53 @@
 export const navigation = [
   {
     name: "Beranda",
-    href: "#home",
+    href: "/",
   },
   {
-    name: "Tentang Kami",
-    href: "#about",
-  },
-  {
-    name: "Layanan",
-    href: "#layanan",
-  },
-  {
-    name: "Kemitraan",
-    href: "#kemitraan",
+    name: "Profile",
+    href: "/profile",
+    subItems: [
+      {
+        name: "Tentang Kami",
+        href: "/profile#about",
+      },
+      {
+        name: "Layanan",
+        href: "/profile#layanan",
+      },
+      {
+        name: "Kemitraan",
+        href: "/profile#kemitraan",
+      },
+    ],
   },
   {
     name: "Hubungi Kami",
-    href: "#contact",
+    href: "/profile#contact",
   },
 ];
 export const navigationSm = [
   {
     name: "Beranda",
-    href: "#home",
+    href: "/",
   },
   {
-    name: "Tentang Kami",
-    href: "#about",
-  },
-  {
-    name: "Layanan",
-    href: "#layanan",
-  },
-  {
-    name: "Kemitraan",
-    href: "#kemitraan",
+    name: "Profile",
+    href: "/profile",
+    subItems: [
+      {
+        name: "Tentang Kami",
+        href: "/profile#about",
+      },
+      {
+        name: "Layanan",
+        href: "/profile#layanan",
+      },
+      {
+        name: "Kemitraan",
+        href: "/profile#kemitraan",
+      },
+    ],
   },
 ];
 

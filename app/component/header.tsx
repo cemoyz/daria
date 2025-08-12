@@ -3,34 +3,14 @@ import Image from "next/image";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { navigation, navigationSm } from "../material/item";
+import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 import { IoClose, IoMenu } from "react-icons/io5";
 
 function Header() {
-  const [activeSection, setActiveSection] = useState("");
   const [isnavOpen, setNavOpen] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const sections = navigation.map((item) => item.href.replace("#", ""));
-      const currentSection = sections.find((section) => {
-        const element = document.getElementById(section);
-        if (!element) return false;
-        const rect = element.getBoundingClientRect();
-        return rect.top <= 60 && rect.bottom >= 60;
-      });
-      if (currentSection) {
-        setActiveSection(`#${currentSection}`);
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    handleScroll(); // Initial check
-
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
+  const [isDropdownOpen, setDropdownOpen] = useState(false);
+  const pathname = usePathname();
 
   return (
     <div className="flex relative justify-center w-full z-50">
@@ -41,7 +21,7 @@ function Header() {
             isnavOpen ? "rounded-t-2xl" : "rounded-full"
           } shadow-md`}
         >
-          <Link href="#home" className="">
+          <Link href="/" className="">
             <Image
               src="/logo-nav.png"
               alt="Logo Daria ID"
@@ -69,29 +49,63 @@ function Header() {
               exit={{ opacity: 0, y: 0 }}
               className="flex gap-1.5 items-center justify-center flex-col w-full text-center p-4 bg-white rounded-b-2xl"
             >
-              {navigation.map((item, index) => (
-                <motion.div
-                  key={item.name}
-                  initial={{ opacity: 0, y: -0.009, x: 200 }}
-                  animate={{ opacity: 1, y: 0, x: 0 }}
-                  exit={{ opacity: 0, y: -200, x: 0 }}
-                  transition={{ delay: index * 0.08 }} // Delay tiap item
-                  className={`text-sm font-medium transition-colors hover:text-merah hover:bg-merah/5 active:text-merah active:bg-merah/15 rounded-lg w-full ${
-                    activeSection === item.href
-                      ? "text-merah bg-merah/15 font-semibold rounded-lg hover:bg-merah/15"
-                      : "text-gray-700"
-                  }`}
-                >
-                  <Link href={item.href}>{item.name}</Link>
-                </motion.div>
-              ))}
+              {navigation.map((item, index) =>
+                item.subItems ? (
+                  <div key={item.name} className="w-full">
+                    <button
+                      onClick={() => setDropdownOpen(!isDropdownOpen)}
+                      className={`text-sm font-medium transition-colors hover:text-merah hover:bg-merah/5 active:text-merah active:bg-merah/15 rounded-lg w-full ${
+                        pathname.startsWith(item.href)
+                          ? "text-merah font-semibold"
+                          : "text-gray-700"
+                      }`}
+                    >
+                      {item.name}
+                    </button>
+                    {isDropdownOpen && (
+                      <div className="flex flex-col items-center gap-1.5 mt-1.5">
+                        {item.subItems.map((subItem, subIndex) => (
+                          <motion.div
+                            key={subItem.name}
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: subIndex * 0.05 }}
+                            className={`text-sm font-medium transition-colors hover:text-merah hover:bg-merah/5 active:text-merah active:bg-merah/15 rounded-lg w-full ${
+                              pathname + (typeof window !== 'undefined' ? window.location.hash : '') === subItem.href
+                                ? "text-merah bg-merah/15 font-semibold"
+                                : "text-gray-700"
+                            }`}
+                          >
+                            <Link href={subItem.href}>{subItem.name}</Link>
+                          </motion.div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <motion.div
+                    key={item.name}
+                    initial={{ opacity: 0, y: -0.009, x: 200 }}
+                    animate={{ opacity: 1, y: 0, x: 0 }}
+                    exit={{ opacity: 0, y: -200, x: 0 }}
+                    transition={{ delay: index * 0.08 }} // Delay tiap item
+                    className={`text-sm font-medium transition-colors hover:text-merah hover:bg-merah/5 active:text-merah active:bg-merah/15 rounded-lg w-full ${
+                      pathname === item.href
+                        ? "text-merah bg-merah/15 font-semibold rounded-lg hover:bg-merah/15"
+                        : "text-gray-700"
+                    }`}
+                  >
+                    <Link href={item.href}>{item.name}</Link>
+                  </motion.div>
+                )
+              )}
             </motion.div>
           )}
         </AnimatePresence>
       </div>
       {/* Desktop Navigation */}
       <div className="hidden sm:flex bg-white py-2 fixed top-2 items-center gap-x-4 px-4 shadow-md rounded-full">
-        <Link href="#home" className="">
+        <Link href="/" className="">
           <Image
             src="/logo-nav.png"
             alt="Logo Daria ID"
@@ -101,35 +115,77 @@ function Header() {
           />
         </Link>
         <div className="flex gap-x-4 items-center justify-center pl-10">
-          {navigationSm.map((item) => (
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setNavOpen(!isnavOpen)}
-              key={item.name}
-            >
-              <Link
-                className={`text-sm font-medium transition-colors hover:text-merah ${
-                  activeSection === item.href
-                    ? "text-merah font-semibold"
-                    : "text-primary"
-                }`}
-                href={item.href}
+          {navigationSm.map((item) =>
+            item.subItems ? (
+              <motion.div
+                key={item.name}
+                className="relative"
+                onHoverStart={() => setDropdownOpen(true)}
+                onHoverEnd={() => setDropdownOpen(false)}
               >
-                {item.name}
-              </Link>
-            </motion.div>
-          ))}
+                <Link
+                  href={item.href}
+                  className={`text-sm font-medium transition-colors hover:text-merah ${
+                    pathname.startsWith(item.href)
+                      ? "text-merah font-semibold"
+                      : "text-primary"
+                  }`}
+                >
+                  {item.name}
+                </Link>
+                <AnimatePresence>
+                  {isDropdownOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="absolute top-full left-0 mt-2 bg-white shadow-lg rounded-md p-2"
+                    >
+                      {item.subItems.map((subItem) => (
+                        <Link
+                          key={subItem.name}
+                          href={subItem.href}
+                          className={`block text-sm font-medium transition-colors hover:text-merah whitespace-nowrap px-4 py-2 ${
+                            pathname + (typeof window !== 'undefined' ? window.location.hash : '') === subItem.href
+                              ? "text-merah font-semibold"
+                              : "text-primary"
+                          }`}
+                        >
+                          {subItem.name}
+                        </Link>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            ) : (
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                key={item.name}
+              >
+                <Link
+                  className={`text-sm font-medium transition-colors hover:text-merah ${
+                    pathname === item.href
+                      ? "text-merah font-semibold"
+                      : "text-primary"
+                  }`}
+                  href={item.href}
+                >
+                  {item.name}
+                </Link>
+              </motion.div>
+            )
+          )}
         </div>
         <motion.div
           whileHover={{ scale: 1.01 }}
           whileTap={{ scale: 0.99 }}
-          onClick={() => setNavOpen(!isnavOpen)}
         >
           <Link
             className={`text-sm font-medium transition-colors bg-merah text-white py-1 px-2 rounded-full hover:bg-primary hover:text-merah
             }`}
-            href="#contact"
+            href="/profile#contact"
           >
             Hubungi Kami
           </Link>
